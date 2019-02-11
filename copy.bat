@@ -1,11 +1,23 @@
-ECHO !!! YOU FORGOT TO EDIT copy.bat !!!
+SET BINARY=sar.dll
 
-SET "binary=sar.dll"
-SET "src=..\bin\%binary%"
-SET "dest=C:\Program Files (x86)\Steam\SteamApps\common"
+SET ORIG_FOLDER=%~dp0
+SET ORIG_BIN_FOLDER=bin\
+SET ORIG_BIN_FILE=%ORIG_FOLDER%%ORIG_BIN_FOLDER%%BINARY%
 
-REM copy /Y "%src%" "%dest%\Portal 2\%binary%"
-REM copy /Y "%src%" "%dest%\Portal\%binary%"
-REM copy /Y "%src%" "%dest%\Half-Life 2\%binary%"
-REM copy /Y "%src%" "%dest%\The Stanley Parable\%binary%"
-REM copy /Y "%src%" "%dest%\The Beginners Guide\%binary%"
+SET STEAM_FOLDER=D:\Programas\Steam\
+SET DEST_PORTAL2_FOLDER=steamapps\common\Portal 2\bin\
+SET DEST_PORTAL2_FOLDER=%STEAM_FOLDER%%DEST_PORTAL2_FOLDER%
+
+IF EXIST %STEAM_FOLDER% (
+    IF EXIST %ORIG_BIN_FILE% (
+        xcopy "%ORIG_BIN_FILE%" "%DEST_PORTAL2_FOLDER%" /sy
+    ) ELSE (
+        ECHO "%ORIG_BIN_FILE% NOT FOUND."
+        ECHO "OPEN copy.bat AND EDIT ORIG_BIN_FOLDER VARIABLE ACCORDINGLY."
+        PAUSE
+    )
+) ELSE (
+    ECHO "%STEAM_FOLDER% NOT FOUND."
+    ECHO "OPEN copy.bat AND EDIT STEAM_FOLDER VARIABLE ACCORDINGLY."
+    PAUSE
+)
