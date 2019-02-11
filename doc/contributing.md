@@ -2,12 +2,19 @@
 
 ## Building
 
+Solution lives in the `SourceAutoRecord.sln` file and it has one project called `SourceAutoRecord`.
+Project configurations lives in the `src/SourceAutoRecord.vcxproj` file.
+
 ### Windows
 
-- Visual Studio 2017
-- MSVC Toolset v141
-- Configure `src/SourceAutoRecord.vcxproj`
-- Configure `copy.bat`
+- Install Visual Studio 2017 and dependencies, for example:
+
+[![vs_dependencies](images/vs_dependencies.png)]
+
+- Rename paths to reflect the file tree of your own file system in `copy.bat`
+- Open `SourceAutoRecord.sln` solution
+- Choose either `Release` or `Debug` build
+- Build the solution
 
 ### Linux
 
@@ -19,17 +26,9 @@
 
 ## Pull Requests
 
-Please write a short description of what you added or what you changed.
-A work in progress PR has to be marked with `[WIP]` in the title.
-
-Keep in mind that your PR might not be merged because:
-
-- You didn't follow the coding style
-- You didn't follow my requested changes
-- Your implementation is bad
-- Your idea is bad
-
-You can simply avoid the last two points by discussing your PR with me before wasting any time.
+- Follow the coding style.
+- Write a short description of what you added or what you changed.
+- Prepend a PR title with `[WIP]` if it is a work in progress.
 
 ## Coding Style
 
