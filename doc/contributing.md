@@ -9,7 +9,7 @@ Project configurations lives in the `src/SourceAutoRecord.vcxproj` file.
 
 - Install Visual Studio 2017 and dependencies, for example:
 
-[![vs_dependencies](images/vs_dependencies.png)]
+![vs_dependencies](images/vs_dependencies.png)
 
 - Rename paths to reflect the file tree of your own file system in `copy.bat`
 - Open `SourceAutoRecord.sln` solution
