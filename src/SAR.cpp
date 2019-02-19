@@ -11,6 +11,17 @@
 #include "Interface.hpp"
 #include "Variable.hpp"
 
+#include <ctime>
+#include <iostream>
+
+#include <sstream>
+#include <string>
+#include <Windows.h>
+#include <io.h>
+#include <filesystem>
+
+using namespace std;
+
 SAR sar;
 EXPOSE_SINGLE_INTERFACE_GLOBALVAR(SAR, IServerPluginCallbacks, INTERFACEVERSION_ISERVERPLUGINCALLBACKS, sar);
 
@@ -145,7 +156,6 @@ void SAR::SearchPlugin()
     });
     this->findPluginThread.detach();
 }
-
 CON_COMMAND(sar_session, "Prints the current tick of the server since it has loaded.\n")
 {
     auto tick = engine->GetSessionTick();
@@ -157,6 +167,98 @@ CON_COMMAND(sar_session, "Prints the current tick of the server since it has loa
     if (engine->demoplayer->IsPlaying()) {
         tick = engine->demoplayer->GetTick();
         console->Print("Demo Player Tick: %i (%.3f)\n", tick, engine->ToTime(tick));
+    }
+}
+const char* split_filename(const string& str)
+{
+    size_t found;
+    found = str.find_last_of("\\");
+    return str.substr(0, found).c_str();
+}
+string get_filepath(const char* filename)
+{
+    char filepath[MAX_PATH];
+    // hardcoded path for portal 2
+    char standard_path[9] = "portal2\\";
+
+    // return %STEAM%\Portal 2\portal2.exe
+    TCHAR buffer[MAX_PATH];
+    GetModuleFileName(NULL, buffer, sizeof(buffer));
+
+    // concatenate
+    strcpy(filepath, split_filename(buffer));
+    strcat(filepath, "\\");
+    strcat(filepath, standard_path);
+    strcat(filepath, filename);
+    return string(filepath);
+}
+string get_filename(const char* participant_name, int last_index)
+{
+    time_t curr_time;
+    tm* curr_tm;
+    char date_string[20];
+    char filename[40];
+
+    time(&curr_time);
+    curr_tm = localtime(&curr_time);
+    strftime(date_string, 12, "%F", curr_tm);
+
+    string session_number = to_string(last_index);
+    const char* session_number_c = session_number.c_str();
+    strcpy(filename, participant_name);
+    strcat(filename, "_");
+    strcat(filename, date_string);
+    strcat(filename, "_");
+    strcat(filename, session_number_c);
+    strcat(filename, ".txt");
+	return string(filename);
+}
+bool file_exists(const char* filename)
+{
+    if (_access(filename, 0) != -1) {
+        return TRUE;
+    } else {
+        return FALSE;
+    }
+}
+CON_COMMAND(log_session, "Log events, record demo and create a logfile incrementally.")
+{
+    if (args.ArgC() == 2) {
+        char command[100];
+        string filename;
+        string filepath;
+        
+		//	avoid overriding datafiles 
+		int i = 1;
+        filename = get_filename(args.Arg(1), i);
+        filepath = get_filepath(filename.c_str());
+        while (file_exists(filepath.c_str())) {
+            i = i + 1;
+            filename = get_filename(args.Arg(1), i);
+            filepath = get_filepath(filename.c_str());
+        }
+        engine->ExecuteCommand("stop");
+        engine->ExecuteCommand("net_showevents 1");
+        engine->ExecuteCommand("developer 3");
+        strcpy(command, "con_logfile");
+        strcat(command, " ");
+        strcat(command, filename.c_str());
+        engine->ExecuteCommand(command);
+        console->Print(command);
+        console->Print("\n");
+		
+		size_t lastindex = filename.find_last_of(".");
+        string name_noext = filename.substr(0, lastindex);
+		strcpy(command, "record");
+        strcat(command, " ");
+        strcat(command, name_noext.c_str());
+        engine->ExecuteCommand(command);
+        console->Print("\n");
+
+        console->Print(filepath.c_str());
+        console->Print("\n");
+    } else {
+        console->Print("Usage: sar_session <FILENAME>");
     }
 }
 CON_COMMAND(sar_about, "Prints info about SAR plugin.\n")
